@@ -1,9 +1,9 @@
-
-# A very simple Flask Hello World app for you to get started with...
+REQUIRE_LOGIN=False
 
 from flask import Flask, redirect, render_template, request, url_for
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import generate_password_hash, check_password_hash
+if REQUIRE_LOGIN:
+    from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -35,7 +35,10 @@ def index():
 
 @auth.verify_password
 def login(username, password):
-    return username == USER_CREDENTIALS['username'] and check_password_hash(USER_CREDENTIALS['hashed_password'], password)
+    if REQUIRE_LOGIN:
+        return username == USER_CREDENTIALS['username'] and check_password_hash(USER_CREDENTIALS['hashed_password'], password)
+    else:
+        return True
 
 @app.route('/comment_page', methods=['GET', 'POST'])
 @auth.login_required
