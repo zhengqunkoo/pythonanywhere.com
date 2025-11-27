@@ -13,11 +13,11 @@ auth = HTTPBasicAuth()
 USER_CREDENTIALS = {}
 USER_CREDENTIALS['username'] = 'zhengqunkoo'
 # Store hashed password (in a real application, save this securely in a database)
-USER_CREDENTIALS['hashed_password'] = 'scrypt:32768:8:1$pLZfdLYlJ9sI8hZr$0894222e1765b0d212e11941441624f5fe9c606d8f0683187e9cab9373f23b80e25ee71a0c160305ae4dacff2abd3afd1562c2a692491d69d16edd9b5e095fa2' #generate_password_hash("password123")
+USER_CREDENTIALS['hashed_password'] = 'scrypt:32768:8:1$egpdQHmkDe9eMU4M$b22cd80c2528b8ffc3f8697c607812df36ecdf1b69ed3a39e21748e59a79c423c3508e8086923e24429e7aec4aee8583c11a486fa3f5cd727ef89732e90340a8' #generate_password_hash("password123")
 
 SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}'.format(
     username='zhengqunkoo',
-    password='R3d!f7VxPq2Z',
+    password='q7F2!hP!PxF5s4g',
     hostname='zhengqunkoo.mysql.pythonanywhere-services.com',
     databasename='zhengqunkoo$comments'
 )
