@@ -5,6 +5,7 @@ from flask_httpauth import HTTPBasicAuth
 if REQUIRE_LOGIN:
     from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import login_user, LoginManager, UserMixin
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -39,12 +40,38 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+app.secret_key = "sduivdluyt8o86575"
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 class Comment(db.Model):
 
     __tablename__ = "comments"
 
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(4096))
+
+class User(UserMixin):
+
+    def __init__(self, username, password_hash):
+        self.username = username
+        self.password_hash = password_hash
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def get_id(self):
+        return self.username
+
+all_users = {
+    'admin': User('admin', generate_password_hash('secret')),
+    'bob': User('bob', generate_password_hash('less-secret')),
+    'caroline': User('caroline', generate_password_hash('completelysecret')),
+}
+
+@login_manager.user_loader
+def load_user(user_id):
+    return all_users.get(user_id)
 
 
 @app.route('/')
@@ -71,10 +98,18 @@ def handle_comments():
     else:
         return 'Unknown request method'
 
-@app.route("/login/", methods=["GET", "POST"])
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
-    if request.method == "GET":
-        return render_template("login_page.html", login_error=False)
-    if request.form["username"] != "admin" or request.form["password"] != "secret":
-        return render_template("login_page.html", login_error=True)
+    if request.method == 'GET':
+        return render_template('login_page.html', login_error=False)
+
+    username = request.form['username']
+    if username not in all_users:
+        return render_template('login_page.html', login_error=True)
+
+    user = all_users[username]
+    if not user.check_password(request.form['password']):
+        return render_template('login_page.html', login_error=True)
+
+    login_user(user)
     return redirect(url_for('index'))
