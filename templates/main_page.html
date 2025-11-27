@@ -31,7 +31,7 @@
             </div>
         {% endfor %}
             <div class="row">
-                <form action="." method="POST">
+                <form action="{{ url_for('handle_comments') }}" method="POST">
                     <textarea class="form-control" name="comment" placeholder="Enter a comment"></textarea>
                     <input type="submit" class="btn btn-success" value="Post comment">
                 </form>
