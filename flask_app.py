@@ -5,7 +5,7 @@ from flask_httpauth import HTTPBasicAuth
 if REQUIRE_LOGIN:
     from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import login_user, LoginManager, UserMixin
+from flask_login import login_user, LoginManager, UserMixin, logout_user, login_required
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -112,4 +112,10 @@ def login():
         return render_template('login_page.html', login_error=True)
 
     login_user(user)
+    return redirect(url_for('index'))
+
+@app.route("/logout/")
+@login_required
+def logout():
+    logout_user()
     return redirect(url_for('index'))
