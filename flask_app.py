@@ -1,4 +1,4 @@
-REQUIRE_LOGIN=False
+REQUIRE_LOGIN=True
 
 from flask import Flask, redirect, render_template, request, url_for
 from flask_httpauth import HTTPBasicAuth
@@ -46,18 +46,27 @@ def login(username, password):
     else:
         return True
 
+def auth_login_toggled(route):
+    if REQUIRE_LOGIN:
+        return auth.login_required(route)
+    return route
+
+def get_comments():
+    return render_template('main_page.html', comments=Comment.query.all())
+
+@auth_login_toggled
+def post_comment():
+    content = request.form['comment']
+    comment = Comment(content=content)
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for('handle_comments'))
+
 @app.route('/comment_page', methods=['GET', 'POST'])
-@auth.login_required
 def handle_comments():
     if request.method == 'GET':
-        return render_template('main_page.html', comments=Comment.query.all())
-
+        return get_comments()
     elif request.method == 'POST':
-        content = request.form['comment']
-        comment = Comment(content=content)
-        db.session.add(comment)
-        db.session.commit()
-        return redirect(url_for('handle_comments'))
-
+        return post_comment()
     else:
         return 'Unknown request method'
