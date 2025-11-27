@@ -35,8 +35,6 @@ class Comment(db.Model):
     content = db.Column(db.String(4096))
 
 
-comments = []
-
 @app.route('/')
 def index():
     return redirect(url_for('handle_comments'))
@@ -52,9 +50,14 @@ def login(username, password):
 @auth.login_required
 def handle_comments():
     if request.method == 'GET':
-        return render_template('main_page.html', comments=comments)
+        return render_template('main_page.html', comments=Comment.query.all())
+
     elif request.method == 'POST':
-        comments.append(request.form['comment'])
-        return redirect(url_for('index'))
+        content = request.form['comment']
+        comment = Comment(content=content)
+        db.session.add(comment)
+        db.session.commit()
+        return redirect(url_for('handle_comments'))
+
     else:
         return 'Unknown request method'
