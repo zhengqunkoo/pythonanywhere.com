@@ -2,8 +2,7 @@ REQUIRE_LOGIN=True
 
 from flask import Flask, redirect, render_template, request, url_for
 from flask_httpauth import HTTPBasicAuth
-if REQUIRE_LOGIN:
-    from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import login_user, LoginManager, UserMixin, logout_user, login_required
 
