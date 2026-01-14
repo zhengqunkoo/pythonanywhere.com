@@ -4,7 +4,10 @@ from flask import Flask, redirect, render_template, request, url_for
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
+import sys
+import socket
 from flask_login import login_user, LoginManager, UserMixin, logout_user, login_required
+import os
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -33,11 +36,36 @@ SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://{username}:{password}@{hostnam
     hostname='zhengqunkoo.mysql.pythonanywhere-services.com',
     databasename='zhengqunkoo$comments'
 )
-app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 299
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+# Create the SQLAlchemy instance without binding to the app yet. This avoids
+# registering multiple instances if we reconfigure during startup.
+db = SQLAlchemy()
+
+def _tcp_reachable(host, port, timeout=3):
+    try:
+        with socket.create_connection((host, int(port)), timeout):
+            return True
+    except Exception:
+        return False
+
+# Prefer MySQL when reachable, otherwise use a local SQLite file for
+# development so the app starts quickly without waiting on remote DB timeouts.
+if _tcp_reachable(db_hostname, 3306, timeout=5):
+    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+    # small connect timeout where supported by the DBAPI
+    app.config.setdefault('SQLALCHEMY_ENGINE_OPTIONS', {})
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'].setdefault('connect_args', {})
+    app.config['SQLALCHEMY_ENGINE_OPTIONS']['connect_args'].setdefault('connect_timeout', 5)
+else:
+    print("INFO: MySQL host not reachable, using local SQLite (data.db)", file=sys.stderr)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+
+# Now bind the DB and create tables once
+db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 app.secret_key = "sduivdluyt8o86575"
 login_manager = LoginManager()
@@ -118,3 +146,8 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(host='0.0.0.0', port=5000)

@@ -1,0 +1,10 @@
+Flask>=3.0.0
+Flask-HTTPAuth>=4.4.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+gunicorn>=21.2.0
+psycopg2-binary>=2.9.9
+Flask-SQLAlchemy>=3.0.0
+Flask-Login>=0.6.0
+mysql-connector-python>=8.0.0
+Flask-MySQL>=1.5.0
