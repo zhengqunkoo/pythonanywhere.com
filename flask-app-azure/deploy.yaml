@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-demo-app
+  namespace: flask-app-azure
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: flask-demo-app
+  template:
+    metadata:
+      labels:
+        component: flask-demo-app
+    spec:
+      containers:
+        - name: flask-demo-app
+          image: zhengqunkoo/flask-app:latest
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: Always

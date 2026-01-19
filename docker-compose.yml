@@ -7,14 +7,15 @@ services:
       - "5000:5000"
     depends_on:
       - db
-    command: python flask_app.py
+    # Let the image ENTRYPOINT handle running Python; pass only the script name
+    command: ["flask_app.py"]
 
   db:
     image: mysql:8.0
     restart: always
     environment:
       MYSQL_DATABASE: comments_db
-      MYSQL_ROOT_PASSWORD: "pHNon'RDdNX2,;x"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes" # to replaec with external secret manager
     volumes:
       - db_data:/var/lib/mysql
 

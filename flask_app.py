@@ -52,7 +52,7 @@ def _tcp_reachable(host, port, timeout=3):
 
 # Prefer MySQL when reachable, otherwise use a local SQLite file for
 # development so the app starts quickly without waiting on remote DB timeouts.
-if _tcp_reachable(db_hostname, 3306, timeout=5):
+if _tcp_reachable('zhengqunkoo.mysql.pythonanywhere-services.com', 3306, timeout=5):
     app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
     # small connect timeout where supported by the DBAPI
     app.config.setdefault('SQLALCHEMY_ENGINE_OPTIONS', {})

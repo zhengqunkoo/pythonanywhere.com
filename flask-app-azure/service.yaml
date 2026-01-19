@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-demo-app-service
+  namespace: flask-app-azure
+spec:
+  type: LoadBalancer
+  selector:
+    component: flask-demo-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
